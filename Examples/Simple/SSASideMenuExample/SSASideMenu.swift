@@ -274,7 +274,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             }
             setupContentViewShadow()
             if visible {
-                setupContentViewControllerMotionEffects()
+                addMotionEffects(contentViewContainer)
             }
         }
     }
@@ -288,7 +288,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             if let controller = oldValue {
                 hideViewController(controller)
             }
-            setupMenuViewControllerMotionEffects()
+            addMotionEffects(menuViewContainer)
             view.bringSubviewToFront(contentViewContainer)
         }
     }
@@ -302,7 +302,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             if let controller = oldValue {
                 hideViewController(controller)
             }
-            setupMenuViewControllerMotionEffects()
+            addMotionEffects(menuViewContainer)
             view.bringSubviewToFront(contentViewContainer)
         }
     }
@@ -344,54 +344,52 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     
     func _presentLeftMenuViewController() {
 
-        presentMenuViewContainerWithMenuViewController(leftMenuViewController)
-        showMenuVC(.left, vc: leftMenuViewController)
+        presentMenuViewContainer(.left)
+        showMenu(.left)
     }
 
     func _presentRightMenuViewController() {
 
-        presentMenuViewContainerWithMenuViewController(rightMenuViewController)
-        showMenuVC(.right, vc: rightMenuViewController)
+        presentMenuViewContainer(.right)
+        showMenu(.right)
     }
 
-    @objc func hideMenuViewController() {
-        hideMenuViewController(true)
-    }
-    
-    fileprivate func showMenuVC(_ side: SSASideMenuSide,
-                                vc: UIViewController?) {
+    @objc func hideMenu() {
 
-        if let viewController = vc {
-
-            showMenuViewController(side, menuViewController: viewController)
-
-            UIView.animate(withDuration: TimeInterval(animationDuration),
-                           animations: {[unowned self] () -> Void in
-
-                    self.animateMenuViewController(side)
-
-                    self.menuViewContainer.alpha = 1
-                    self.contentViewContainer.alpha = CGFloat(self.contentViewFadeOutAlpha)
-                },
-                completion: {[unowned self] (Bool) -> Void in
-
-                self.animateMenuViewControllerCompletion(side, vc: viewController)
-            })
-
-            statusBarNeedsAppearanceUpdate()
-        }
+        hideMenuVC()
     }
     
-    fileprivate func showMenuViewController(_ side: SSASideMenuSide,
-                                            menuViewController: UIViewController) {
+    fileprivate func showMenu(_ side: SSASideMenuSide) {
 
-        menuViewController.view.isHidden = false
+        showMenuViewController(side)
+
+        UIView.animate(withDuration: TimeInterval(animationDuration),
+                       animations: {[unowned self] () -> Void in
+
+                self.animateMenuViewController(side)
+
+                self.menuViewContainer.alpha = 1
+                self.contentViewContainer.alpha = CGFloat(self.contentViewFadeOutAlpha)
+            },
+            completion: {[unowned self] (Bool) -> Void in
+
+            self.animateMenuViewControllerCompletion(side)
+        })
+
+        statusBarNeedsAppearanceUpdate()
+    }
+
+    fileprivate func showMenuViewController(_ side: SSASideMenuSide) {
 
         switch side {
+
             case .left:
+                leftMenuViewController?.view.isHidden = false
                 leftMenuViewController?.beginAppearanceTransition(true, animated: true)
                 rightMenuViewController?.view.isHidden = true
+
             case .right:
+                rightMenuViewController?.view.isHidden = false
                 rightMenuViewController?.beginAppearanceTransition(true, animated: true)
                 leftMenuViewController?.view.isHidden = true
         }
@@ -413,7 +411,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     fileprivate func animateMenuViewController(_ side: SSASideMenuSide) {
         
         if type == .scale {
-            contentViewContainer.transform = CGAffineTransform(scaleX: CGFloat(contentViewScaleValue), y: CGFloat(contentViewScaleValue))
+            contentViewContainer.transform = CGAffineTransform(scaleX: CGFloat(contentViewScaleValue),
+                                                               y: CGFloat(contentViewScaleValue))
         }
         else {
             contentViewContainer.transform = CGAffineTransform.identity
@@ -422,7 +421,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         if side == .left {
             let centerXLandscape = CGFloat(contentViewInLandscapeOffsetCenterX) + CGFloat(view.frame.height)
             let centerXPortrait = CGFloat(contentViewInPortraitOffsetCenterX) + CGFloat(view.frame.width)
-            
+
             let centerX = (statusBarOrientation == UIInterfaceOrientation.portrait) ? centerXPortrait : centerXLandscape
 
             contentViewContainer.center = CGPoint(x: centerX, y: contentViewContainer.center.y)
@@ -430,14 +429,15 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         else {
             let centerXLandscape = -CGFloat(self.contentViewInLandscapeOffsetCenterX)
             let centerXPortrait = CGFloat(-self.contentViewInPortraitOffsetCenterX)
-            
+
             let centerX = (statusBarOrientation == UIInterfaceOrientation.portrait) ? centerXPortrait : centerXLandscape
-            
-            contentViewContainer.center = CGPoint.init(x: centerX, y: contentViewContainer.center.y)
+
+            contentViewContainer.center = CGPoint.init(x: centerX,
+                                                       y: contentViewContainer.center.y)
         }
-        
+
         menuViewContainer.transform = CGAffineTransform.identity
-        
+
         if scaleBackgroundImageView {
             if let _ = backgroundImage {
                 backgroundImageView.transform = CGAffineTransform.identity
@@ -445,9 +445,9 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    fileprivate func animateMenuViewControllerCompletion(_ side: SSASideMenuSide,
-                                                         vc: UIViewController) {
-        if !visible {
+    fileprivate func animateMenuViewControllerCompletion(_ side: SSASideMenuSide) {
+
+        if !visible, let vc = (side == .left) ? leftMenuViewController : rightMenuViewController {
             self.delegate?.sideMenuDidShowMenuViewController?(self, menuViewController: vc)
         }
         
@@ -474,11 +474,11 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         }
 
         view.isUserInteractionEnabled = true
-        setupContentViewControllerMotionEffects()
+        addMotionEffects(contentViewContainer)
     }
     
-    fileprivate func presentMenuViewContainerWithMenuViewController(_ menuViewController: UIViewController?) {
-        
+    fileprivate func presentMenuViewContainer(_ side: SSASideMenuSide) {
+
         menuViewContainer.transform = CGAffineTransform.identity
         menuViewContainer.frame = view.bounds
 
@@ -491,18 +491,18 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
                 backgroundImageView.transform = backgroundTransformation
             }
         }
-        
+
         if scaleMenuView {
             menuViewContainer.transform = menuViewControllerTransformation
         }
         menuViewContainer.alpha = fadeMenuView ? 0 : 1
-        
-        if let viewController = menuViewController {
-            delegate?.sideMenuWillShowMenuViewController?(self, menuViewController: viewController)
+
+        if let vc = (side == .left) ? leftMenuViewController : rightMenuViewController {
+            self.delegate?.sideMenuWillShowMenuViewController?(self, menuViewController: vc)
         }
     }
     
-    fileprivate func hideMenuViewController(_ animated: Bool) {
+    fileprivate func hideMenuVC(_ animated: Bool = true) {
 
         let isRightMenuVisible: Bool = rightMenuVisible
 
@@ -560,7 +560,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
                 self.delegate?.sideMenuDidHideMenuViewController?(self, menuViewController: viewController)
             }
         }
-        
+
         if animated {
 
             view.isUserInteractionEnabled = false
@@ -570,7 +570,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
                 
             }, completion: { (Bool) -> Void in
                 completionClosure()
-                
+
                 self.view.isUserInteractionEnabled = true
             })
         }
@@ -578,7 +578,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             animationsClosure()
             completionClosure()
         }
-        
+
         statusBarNeedsAppearanceUpdate()
     }
 
@@ -614,13 +614,14 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             backgroundImageView.frame = view.bounds
             backgroundImageView.contentMode = .scaleAspectFill;
             backgroundImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight];
+
             view.addSubview(backgroundImageView)
         }
-        
+
         view.addSubview(menuViewContainer)
         view.addSubview(contentViewContainer)
-        
-        setupMenuViewControllerMotionEffects()
+
+        addMotionEffects(menuViewContainer)
         setupContentViewShadow()
     }
     
@@ -632,8 +633,10 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         if let viewController = targetViewController {
 
             addChild(viewController)
+
             viewController.view.frame = view.bounds
             viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
             targetView.addSubview(viewController.view)
             viewController.didMove(toParent: self)
         }
@@ -641,7 +644,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     
     fileprivate func hideViewController(_ targetViewController: UIViewController) {
 
-        targetViewController.willMove(toParent: nil)
+        //targetViewController.willMove(toParent: nil)
         targetViewController.view.removeFromSuperview()
         targetViewController.removeFromParent()
     }
@@ -655,7 +658,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         }
 
         contentButton.addTarget(self,
-                                action: #selector(SSASideMenu.hideMenuViewController as (SSASideMenu) -> () -> ()),
+                                action: #selector(SSASideMenu.hideMenu as (SSASideMenu) -> () -> ()),
                                 for:.touchUpInside)
         contentButton.autoresizingMask = UIView.AutoresizingMask()
         contentButton.frame = contentViewContainer.bounds
@@ -663,12 +666,14 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         contentButton.tag = 101
         contentViewContainer.addSubview(contentButton)
     }
-    
+
     fileprivate func statusBarNeedsAppearanceUpdate() {
         
         if self.responds(to: #selector(UIViewController.setNeedsStatusBarAppearanceUpdate)) {
             
-            UIView.animate(withDuration: 0.3, animations: { () -> Void in
+            UIView.animate(withDuration: 0.3,
+                           animations: { () -> Void in
+
                 self.setNeedsStatusBarAppearanceUpdate()
             })
         }
@@ -677,6 +682,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     fileprivate func setupContentViewShadow() {
         
         if contentViewShadowEnabled {
+
             let layer: CALayer = contentViewContainer.layer
             let path: UIBezierPath = UIBezierPath(rect: layer.bounds)
             layer.shadowPath = path.cgPath
@@ -694,6 +700,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         let t: CGAffineTransform = contentViewContainer.transform
         let scale: CGFloat = sqrt(t.a * t.a + t.c * t.c)
         let frame: CGRect = contentViewContainer.frame
+
         contentViewContainer.transform = CGAffineTransform.identity
         contentViewContainer.transform = CGAffineTransform(scaleX: scale, y: scale)
         contentViewContainer.frame = frame
@@ -714,65 +721,46 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     }
     
     // MARK : Motion Effects (Private)
-    
-    fileprivate func removeMotionEffects(_ targetView: UIView) {
-        let targetViewMotionEffects = targetView.motionEffects
-        for effect in targetViewMotionEffects {
-            targetView.removeMotionEffect(effect)
+
+    fileprivate func removeMotionEffects(_ view: UIView) {
+
+        let motionEffects = view.motionEffects
+        for effect in motionEffects {
+
+            view.removeMotionEffect(effect)
         }
     }
-    
-    fileprivate func setupMenuViewControllerMotionEffects() {
-        
+
+    fileprivate func addMotionEffects(_ view: UIView) {
+
         if parallaxEnabled {
-            removeMotionEffects(menuViewContainer)
-            
-            // We need to refer to self in closures!
-            UIView.animate(withDuration: 0.2, animations: { [unowned self] () -> Void in
-                
-                let interpolationHorizontal: UIInterpolatingMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
+
+            removeMotionEffects(view)
+
+            UIView.animate(withDuration: 0.2,
+                           animations: { [unowned self] () -> Void in
+
+                let interpolationHorizontal: UIInterpolatingMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.x",
+                                                                                                       type: .tiltAlongHorizontalAxis)
                 interpolationHorizontal.minimumRelativeValue = self.parallaxContentMinimumRelativeValue
                 interpolationHorizontal.maximumRelativeValue = self.parallaxContentMaximumRelativeValue
-                
-                let interpolationVertical: UIInterpolatingMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
+
+                let interpolationVertical: UIInterpolatingMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.y",
+                                                                                                     type: .tiltAlongVerticalAxis)
                 interpolationHorizontal.minimumRelativeValue = self.parallaxContentMinimumRelativeValue
                 interpolationHorizontal.maximumRelativeValue = self.parallaxContentMaximumRelativeValue
-                
-                self.menuViewContainer.addMotionEffect(interpolationHorizontal)
-                self.menuViewContainer.addMotionEffect(interpolationVertical)
+
+                view.addMotionEffect(interpolationHorizontal)
+                view.addMotionEffect(interpolationVertical)
             })
         }
     }
-    
-    fileprivate func setupContentViewControllerMotionEffects() {
-        
-        if parallaxEnabled {
-            
-            removeMotionEffects(contentViewContainer)
-            
-            // We need to refer to self in closures!
-            UIView.animate(withDuration: 0.2, animations: { [unowned self] () -> Void in
-                
-                let interpolationHorizontal: UIInterpolatingMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
-                interpolationHorizontal.minimumRelativeValue = self.parallaxContentMinimumRelativeValue
-                interpolationHorizontal.maximumRelativeValue = self.parallaxContentMaximumRelativeValue
-                
-                let interpolationVertical: UIInterpolatingMotionEffect = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
-                interpolationHorizontal.minimumRelativeValue = self.parallaxContentMinimumRelativeValue
-                interpolationHorizontal.maximumRelativeValue = self.parallaxContentMaximumRelativeValue
-                
-                self.contentViewContainer.addMotionEffect(interpolationHorizontal)
-                self.contentViewContainer.addMotionEffect(interpolationVertical)
-            })
-        }
-    }
-    
+
     // MARK : View Controller Rotation handler
     
     override var shouldAutorotate: Bool {
         
         if let cntViewController = contentViewController {
-            
             return cntViewController.shouldAutorotate
         }
         return false
@@ -788,8 +776,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
-        
+    override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation,
+                                      duration: TimeInterval) {
         if visible {
             
             menuViewContainer.bounds = view.bounds
@@ -797,7 +785,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             contentViewContainer.frame = view.bounds
             
             if type == .scale {
-                contentViewContainer.transform = CGAffineTransform(scaleX: CGFloat(contentViewScaleValue), y: CGFloat(contentViewScaleValue))
+                contentViewContainer.transform = CGAffineTransform(scaleX: CGFloat(contentViewScaleValue),
+                                                                   y: CGFloat(contentViewScaleValue))
             }
             else {
                 contentViewContainer.transform = CGAffineTransform.identity
@@ -811,7 +800,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
 
                 let centerX = (statusBarOrientation == UIInterfaceOrientation.portrait) ? centerXPortrait : centerXLandscape
                 
-                center = CGPoint.init(x: centerX, y: contentViewContainer.center.y)
+                center = CGPoint.init(x: centerX,
+                                      y: contentViewContainer.center.y)
             }
             else {
                 let centerXLandscape = -CGFloat(self.contentViewInLandscapeOffsetCenterX)
@@ -819,7 +809,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
                 
                 let centerX = (statusBarOrientation == UIInterfaceOrientation.portrait) ? centerXPortrait : centerXLandscape
                 
-                center = CGPoint.init(x: centerX, y: contentViewContainer.center.y)
+                center = CGPoint.init(x: centerX,
+                                      y: contentViewContainer.center.y)
             }
             
             contentViewContainer.center = center
@@ -827,9 +818,11 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         
         setupContentViewShadow()
     }
-    
+
     // MARK : Status Bar Appearance Management
-    override var preferredStatusBarStyle: UIStatusBarStyle{
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+
         var style: UIStatusBarStyle
 
         switch statusBarStyle {
@@ -848,7 +841,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         return style
     }
     
-    override var prefersStatusBarHidden: Bool{
+    override var prefersStatusBarHidden: Bool {
+
         var statusBarHidden: Bool
 
         switch statusBarStyle {
@@ -897,8 +891,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     }
     
     // MARK : UIGestureRecognizer Delegate (Private)
-    
-    
+
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         
         if interactivePopGestureRecognizerEnabled,
@@ -943,7 +936,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
                 backgroundImageView.transform = CGAffineTransform.identity
                 backgroundImageView.frame = view.bounds
             }
-            
+
             menuViewContainer.frame = view.bounds
             setupContentButton()
             
@@ -985,11 +978,13 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             contentViewContainer.alpha = 1 - (1 - CGFloat(contentViewFadeOutAlpha)) * delta
             
             if scaleBackgroundImageView {
-                backgroundImageView.transform = CGAffineTransform(scaleX: backgroundViewScale, y: backgroundViewScale)
+                backgroundImageView.transform = CGAffineTransform(scaleX: backgroundViewScale,
+                                                                  y: backgroundViewScale)
             }
             
             if scaleMenuView {
-                menuViewContainer.transform = CGAffineTransform(scaleX: menuViewScale, y: menuViewScale)
+                menuViewContainer.transform = CGAffineTransform(scaleX: menuViewScale,
+                                                                y: menuViewScale)
             }
             
             if scaleBackgroundImageView && backgroundViewScale < 1 {
@@ -1031,11 +1026,13 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             if contentViewScale > 1 {
 
                 let oppositeScale: CGFloat = (1 - (contentViewScale - 1))
-                contentViewContainer.transform = CGAffineTransform(scaleX: oppositeScale, y: oppositeScale)
+                contentViewContainer.transform = CGAffineTransform(scaleX: oppositeScale,
+                                                                   y: oppositeScale)
                 contentViewContainer.transform = contentViewContainer.transform.translatedBy(x: point.x, y: 0)
             }
             else {
-                contentViewContainer.transform = CGAffineTransform(scaleX: contentViewScale, y: contentViewScale)
+                contentViewContainer.transform = CGAffineTransform(scaleX: contentViewScale,
+                                                                   y: contentViewScale)
                 contentViewContainer.transform = contentViewContainer.transform.translatedBy(x: point.x, y: 0)
             }
             leftMenuViewController?.view.isHidden = contentViewContainer.frame.origin.x < 0
@@ -1067,27 +1064,27 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
                 contentViewContainer.frame.origin.x > 0 &&
                 contentViewContainer.frame.origin.x < CGFloat(panMinimumOpenThreshold) {
                 
-                hideMenuViewController()
+                hideMenu()
             }
             else if contentViewContainer.frame.origin.x == 0 {
-                hideMenuViewController(false)
+                hideMenuVC(false)
             }
-                
+
             else if recognizer.velocity(in: view).x > 0 {
 
                 if contentViewContainer.frame.origin.x < 0 {
-                    hideMenuViewController()
+                    hideMenu()
                 }
-                else if let vc = leftMenuViewController {
-                    showMenuVC(.left, vc: vc)
+                else {
+                    showMenu(.left)
                 }
             }
             else {
-                if contentViewContainer.frame.origin.x < 20, let vc = rightMenuViewController {
-                    showMenuVC(.right, vc: vc)
+                if contentViewContainer.frame.origin.x < 20 {
+                    showMenu(.right)
                 }
                 else {
-                    hideMenuViewController()
+                    hideMenu()
                 }
             }
         }

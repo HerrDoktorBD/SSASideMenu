@@ -98,14 +98,14 @@ extension RightMenuViewController: UITableViewDelegate, UITableViewDataSource {
                 vc = CalendarViewController()
 
             default:
-                sideMenuViewController?.hideMenuViewController()
+                sideMenuViewController?.hideMenu()
                 return
         }
 
         let nc = UINavigationController(rootViewController: vc)
         sideMenuViewController?.contentViewController = nc
 
-        sideMenuViewController?.hideMenuViewController()
+        sideMenuViewController?.hideMenu()
     }
 }
     
