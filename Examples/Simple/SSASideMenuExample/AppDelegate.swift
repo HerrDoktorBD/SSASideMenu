@@ -2,54 +2,32 @@
 //  AppDelegate.swift
 //  SSASideMenuExample
 //
-//  Created by Sebastian Andersen on 20/10/14.
-//  Copyright (c) 2014 Sebastian Andersen. All rights reserved.
+//  Created by Antonio Montes on 4/3/20.
+//  Copyright © 2020 Antonio Montes. All rights reserved.
 //
 
 import UIKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, SSASideMenuDelegate {
-
-    var window: UIWindow?
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-       
-        window = UIWindow(frame: UIScreen.main.bounds)
-        
-        //MARK : Setup SSASideMenu
-        
-        let sideMenu = SSASideMenu(contentViewController: UINavigationController(rootViewController: FirstViewController()), leftMenuViewController: LeftMenuViewController(), rightMenuViewController: RightMenuViewController())
-        sideMenu.backgroundImage = UIImage(named: "Background.jpg")
-        sideMenu.configure(SSASideMenu.MenuViewEffect(fade: true, scale: true, scaleBackground: false))
-        sideMenu.configure(SSASideMenu.ContentViewEffect(alpha: 1.0, scale: 0.7))
-        sideMenu.configure(SSASideMenu.ContentViewShadow(enabled: true, color: UIColor.black, opacity: 0.6, radius: 6.0))
-        sideMenu.delegate = self
-        
-        window?.rootViewController = sideMenu
-        window?.makeKeyAndVisible()
-               
+        // Override point for customization after application launch.
         return true
     }
-    
-    func sideMenuWillShowMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
-        print("Will Show \(menuViewController)")
-    }
-    
-    func sideMenuDidShowMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
-        print("Did Show \(menuViewController)")
-    }
-    
-    func sideMenuDidHideMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
-         print("Did Hide \(menuViewController)")
-    }
-    
-    func sideMenuWillHideMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
-        print("Will Hide \(menuViewController)")
-    }
-    func sideMenuDidRecognizePanGesture(_ sideMenu: SSASideMenu, recongnizer: UIPanGestureRecognizer) {
-        print("Did Recognize PanGesture \(recongnizer)")
+
+    // MARK: UISceneSession Lifecycle
+
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        // Called when a new scene session is being created.
+        // Use this method to select a configuration to create the new scene with.
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
+    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+        // Called when the user discards a scene session.
+        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
+        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    }
 }
 
