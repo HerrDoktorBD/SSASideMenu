@@ -52,6 +52,14 @@ class RightMenuViewController: UIViewController {
         ]
     }()
 
+    lazy var images: [String] = {
+
+        return [
+            "IconHome",
+            "IconCalendar"
+        ]
+    }()
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -79,7 +87,8 @@ extension RightMenuViewController: UITableViewDelegate, UITableViewDataSource {
         cell.textLabel?.textColor = UIColor.white
         cell.textLabel?.text = titles[indexPath.row]
         cell.selectionStyle = .none
-        
+        cell.imageView?.image = UIImage(named: images[indexPath.row])
+
         return cell
     }
     

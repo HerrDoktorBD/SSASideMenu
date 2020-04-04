@@ -493,7 +493,7 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
     
     fileprivate func hideMenu(animated: Bool = true) {
 
-        if let vc = rightMenuVisible ? rightMenuViewController : leftMenuViewController {
+        if visible, let vc = rightMenuVisible ? rightMenuViewController : leftMenuViewController {
 
             vc.beginAppearanceTransition(true, animated: true)
             self.delegate?.sideMenuWillHideMenuViewController?(self, menuViewController: vc)
@@ -537,7 +537,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             if animated {
 
                 view.isUserInteractionEnabled = false
-                UIView.animate(withDuration: TimeInterval(animationDuration), animations: { () -> Void in
+                UIView.animate(withDuration: TimeInterval(animationDuration),
+                               animations: { () -> Void in
 
                     animationsClosure()
 
@@ -566,7 +567,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         if panGestureEnabled {
 
             view.isMultipleTouchEnabled = false
-            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureRecognized(_:)))
+            let panGestureRecognizer = UIPanGestureRecognizer(target: self,
+                                                              action: #selector(panGestureRecognized(_:)))
             panGestureRecognizer.delegate = self
             view.addGestureRecognizer(panGestureRecognizer)
         }
@@ -968,11 +970,11 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
             if !didNotifyDelegate {
 
                 if !visible {
-                    if point.x > 0, let viewController = leftMenuViewController {
-                        delegate?.sideMenuWillShowMenuViewController?(self, menuViewController: viewController)
+                    if point.x > 0, let vc = leftMenuViewController {
+                        delegate?.sideMenuWillShowMenuViewController?(self, menuViewController: vc)
                     }
-                    if point.x < 0, let viewController = rightMenuViewController {
-                        delegate?.sideMenuWillShowMenuViewController?(self, menuViewController: viewController)
+                    if point.x < 0, let vc = rightMenuViewController {
+                        delegate?.sideMenuWillShowMenuViewController?(self, menuViewController: vc)
                     }
                 }
                 didNotifyDelegate = true
