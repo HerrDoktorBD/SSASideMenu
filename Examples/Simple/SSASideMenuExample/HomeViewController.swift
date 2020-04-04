@@ -12,7 +12,7 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         view.backgroundColor = UIColor.systemTeal
         title = "Home"
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Left",

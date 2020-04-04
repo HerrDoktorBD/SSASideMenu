@@ -32,7 +32,7 @@ class RightMenuViewController: UIViewController {
 
         return tableView
     }()
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
@@ -98,14 +98,14 @@ extension RightMenuViewController: UITableViewDelegate, UITableViewDataSource {
                 vc = CalendarViewController()
 
             default:
-                sideMenuViewController?.hideMenu()
+                sideMenuViewController?.hide()
                 return
         }
 
         let nc = UINavigationController(rootViewController: vc)
         sideMenuViewController?.contentViewController = nc
 
-        sideMenuViewController?.hideMenu()
+        sideMenuViewController?.hide()
     }
 }
     

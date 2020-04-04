@@ -97,8 +97,8 @@ extension SceneDelegate: SSASideMenuDelegate {
         print("Will Hide \(menuViewController)")
     }
 
-    func sideMenuDidRecognizePanGesture(_ sideMenu: SSASideMenu, recongnizer: UIPanGestureRecognizer) {
-        print("Did Recognize PanGesture \(recongnizer)")
+    func sideMenuDidRecognizePanGesture(_ sideMenu: SSASideMenu, recognizer: UIPanGestureRecognizer) {
+        print("Did Recognize PanGesture \(recognizer)")
     }
 }
 
