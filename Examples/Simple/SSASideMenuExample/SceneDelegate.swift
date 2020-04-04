@@ -45,7 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         sideMenu.configure(SSASideMenu.MenuViewEffect(fade: true, scale: true, scaleBackground: false))
         sideMenu.configure(SSASideMenu.ContentViewEffect(alpha: 1.0, scale: 0.7))
         sideMenu.configure(SSASideMenu.ContentViewShadow(enabled: true, color: UIColor.black, opacity: 0.6, radius: 6.0))
-        sideMenu.delegate = self
+        //sideMenu.delegate = self
 
         return sideMenu
     }()
@@ -79,6 +79,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 }
 
+/*
 extension SceneDelegate: SSASideMenuDelegate {
 
     func sideMenuWillShowMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
@@ -90,7 +91,7 @@ extension SceneDelegate: SSASideMenuDelegate {
     }
     
     func sideMenuDidHideMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
-         print("Did Hide \(menuViewController)")
+        print("Did Hide \(menuViewController)")
     }
     
     func sideMenuWillHideMenuViewController(_ sideMenu: SSASideMenu, menuViewController: UIViewController) {
@@ -101,4 +102,4 @@ extension SceneDelegate: SSASideMenuDelegate {
         print("Did Recognize PanGesture \(recognizer)")
     }
 }
-
+*/
