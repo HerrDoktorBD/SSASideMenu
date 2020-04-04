@@ -67,12 +67,12 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         case black = 1
         case light = 2
     }
-    
+
     fileprivate enum SSASideMenuSide: Int {
         case left = 0
         case right = 1
     }
-    
+
     struct ContentViewShadow {
         
         var enabled: Bool = true
@@ -366,14 +366,14 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         UIView.animate(withDuration: TimeInterval(animationDuration),
                        animations: {[unowned self] () -> Void in
 
-                self.animateMenuViewController(side)
+                self.animateMenuViewContainer(side)
 
                 self.menuViewContainer.alpha = 1
                 self.contentViewContainer.alpha = CGFloat(self.contentViewFadeOutAlpha)
             },
             completion: {[unowned self] (Bool) -> Void in
 
-            self.animateMenuViewControllerCompletion(side)
+            self.animateMenuViewContainerCompletion(side)
         })
 
         statusBarNeedsAppearanceUpdate()
@@ -408,8 +408,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         view.isUserInteractionEnabled = false
     }
 
-    fileprivate func animateMenuViewController(_ side: SSASideMenuSide) {
-        
+    fileprivate func animateMenuViewContainer(_ side: SSASideMenuSide) {
+
         if type == .scale {
             contentViewContainer.transform = CGAffineTransform(scaleX: CGFloat(contentViewScaleValue),
                                                                y: CGFloat(contentViewScaleValue))
@@ -424,7 +424,8 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
 
             let centerX = (statusBarOrientation == UIInterfaceOrientation.portrait) ? centerXPortrait : centerXLandscape
 
-            contentViewContainer.center = CGPoint(x: centerX, y: contentViewContainer.center.y)
+            contentViewContainer.center = CGPoint(x: centerX,
+                                                  y: contentViewContainer.center.y)
         }
         else {
             let centerXLandscape = -CGFloat(self.contentViewInLandscapeOffsetCenterX)
@@ -445,12 +446,12 @@ class SSASideMenu: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
-    fileprivate func animateMenuViewControllerCompletion(_ side: SSASideMenuSide) {
+    fileprivate func animateMenuViewContainerCompletion(_ side: SSASideMenuSide) {
 
         if !visible, let vc = (side == .left) ? leftMenuViewController : rightMenuViewController {
-            self.delegate?.sideMenuDidShowMenuViewController?(self, menuViewController: vc)
+            self.delegate?.sideMenuDidShowMenuViewController?(self,
+                                                              menuViewController: vc)
         }
-        
         visible = true
 
         switch side {
